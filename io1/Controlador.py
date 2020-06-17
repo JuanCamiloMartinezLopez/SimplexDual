@@ -289,7 +289,16 @@ class Controlador:
         z.agregarRestricciones()
 
         global arregloFilas,arregloCol,tabla
-
+        print("=====================================================================")
+        print("Simplex")
+        print("tabla")
+        
+        print(tabla)
+        print(arregloFilas," arregloFilas")
+        print(arregloCol," arregloCol")
+        print(self.esMinimizar," esMinimizar")
+        print("=====================================================================")
+        
         MS=MetodoSimplex(tabla,arregloFilas,arregloCol,self.esMinimizar)
         matrizDual = MS.start_MetodoSimplex_Max()
         arregloDual = self.imprimirResultadoDual(matrizDual)
@@ -337,82 +346,3 @@ class Controlador:
             nuevaTabla[0][x].NUM=lista2[x]
             x+=1
         return nuevaTabla
-    ''' 
-    Funcion encargada de colocar el nuevo U para realizar la primera fase
-    '''
-    def generarTablaF1(self,nuevoN):
-
-        global tabla
-        tablaAux = copy.deepcopy(tabla)
-        nuevoZ = []
-
-        x = 0
-        for i in range(len(tablaAux[0])):
-            x = nuevoN[i] + x
-            for j in range(len(tablaAux)):
-                if j != 0:
-                    x = tablaAux[j][i] + x
-            nuevoZ.append(x)
-            x = 0
-
-        #Generar nueva tabla
-        for i in range(len(tablaAux[0])):
-            tablaAux[0][i].NUM = nuevoZ[i]
-
-        return tablaAux
-
-    '''
-    Crea una fila de 0 y -1(si es artificial), para realizar 
-    la suma de columnas y poder calcular el U de la primera Fase
-    '''
-    def generarNuevoN(self):       
-
-        arreglo = []
-        for i in range(len(tabla[0])):
-            if 'R' in tabla[0][i].letra:
-                arreglo.append(-1)
-            else:
-                arreglo.append(0)
-        
-        return arreglo
-
-    '''
-    Coloca el U original en la matriz, con las filas (restricciones)
-    de la fase #1
-    '''
-    def generarTablaF2(self, MatrizF1):
-        global tabla
-        for i in range(len(tabla)):
-            if i > 0:
-                tabla[i] = MatrizF1[i]
-
-    '''
-    Elmina las columnas con variables artificiales
-    '''
-    def eliminarVariablesArtificiales(self):
-        global tabla 
-
-        tablaF2 = []
-        arregloF2 = []
-
-        for i in range(len(tabla)):
-            for j in range(len(tabla[0])):
-                if 'R' not in tabla[0][j].letra:
-                    arregloF2.append(tabla[i][j])
-
-            tablaF2.append(arregloF2)
-            arregloF2 = []
-
-        return tablaF2
-
-    '''
-    Elimina las R de el arreglo que contiene los identificadores 
-    de cada columna
-    '''
-    def actualizarArregloCol(self):
-        global arregloCol
-        nuevoArregloCol = []
-        for i in range(len(arregloCol)):
-            if 'R' not in arregloCol[i]:
-                nuevoArregloCol.append(arregloCol[i])
-        return nuevoArregloCol

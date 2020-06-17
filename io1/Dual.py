@@ -1,12 +1,10 @@
-from Principal import *
-import numpy as mp
+from Controlador import *
+import numpy as np
 
 matrizTrans = [] #matriz a usar como transpuesta
 matrizNueva = [] #matriz que se va usar para agregar las de holgura y artificial 
 listaZFase1 = [] #lista donde se guarda el resultado de Z con las variables agregadas 
 listaNueva = []
-Resultado = []  #lista donde se guardan el resultado antes de agregar las variables de holgura y artificial en max
-ResultadoMin = [] #lista donde se guardan el resultado antes de agregar las variables de holgura y artificial en min
 masHolgura=0 #variable para llevar un contador de cuantas variables de holgura positivas se debe agregar 
 menosHolgura=0 #variable para llevar un contador de cuantas variables de holgura negativas se debe agregar
 artificial=0 #variable para llevar un contador de cuantas variables de artificial se debe agregar
@@ -74,15 +72,24 @@ def evaluarRestricciones(restricciones, variables):
         elif(matrizTrans[i][restricciones+1] == "="):
             artificial = artificial +1
         else:
-            print("No hay signos")
+            pass
 
 #Funcion de max que recibe las variables, restricciones, listaVariables que es la que contiene la fila de Z
 # y tambien matrizX que es la que nos manda la interfaz 
 def dualMax(variables, restricciones,matrizX, listaVariables):
-    
-    #Aqui debo recibir el signo dada por la interfaz 
-    signo = ">="   
-    #transpuesta
+
+    for i in range(restricciones):
+        if matrizX[i][variables+1] == ">=":
+
+            matrizX[i][variables+1] = "<="
+            for j in range(variables+1):
+                try:
+                    aux = int(matrizX[i][j])
+                    aux = -aux;
+                    matrizX[i][j] = str(aux)
+                except:
+                    pass
+
     #listaNueva contiene la nueva Min W
     for x in range(0,restricciones):
         listaNueva.append(matrizX[x][variables])#Le asigno a listaNueva los nuevos valores de Z
@@ -90,50 +97,57 @@ def dualMax(variables, restricciones,matrizX, listaVariables):
     #Con este for se tranpone la matriz con los datos de Z que estaban en listaVariables 
     for x in range(variables):
         matrizTrans[x][restricciones]=listaVariables[x]
-        matrizTrans[x][restricciones+1]=signo
+        matrizTrans[x][restricciones+1]=">="
 
     #Con este for transpone la matrizX en la matrizTrans que sera la que vamos a utilizar 
     for w in range(variables):
         for y in range(restricciones):
             matrizTrans[w][y]=matrizX[y][w]       
     
-    
-    #Agregando al resultado para en un futuro mandarlo a la funcion simplex 
-    Resultado.append("min")
-    Resultado.append(str(restricciones)+","+str(variables))
 
-    #Este for lo que hace es agarrar cada elemento en listaNueva que es el Z nuevo y lo mete en resultado 
-    var=""
-    for i in range(0,len(listaNueva)):
-        var = var + listaNueva[i]
-        if(i<len(listaNueva)-1):
-            var = var + ","
-    Resultado.append(var)
-
-    #Agarra cada restriccion de la matriz y la va anadiendo al resultado como una lista de string 
-    for i in range(variables):
-        var=""
-        for y in range(restricciones+2):
-            var = var + matrizTrans[i][y]
-            if(y<restricciones+1):
-                var = var + ","
-        Resultado.append(var)
-
-    
     evaluarRestricciones(restricciones, variables)#Funcion oara evaluar las restricciones y sumas las variables 
     agregarHA(variables,restricciones)#Funcion que agrega las variables a cada fila 
-    z=int(menosHolgura)+int(masHolgura)
-    i = int(artificial)
 
-    #imprimir matriz en forma ordenada
-    print("Resultado enviado a funcion de simplex")
-    mainDual(Resultado)
+    
+    for y in range(variables+1):
+        if(y==0):
+            print("Z: " + str(matrizNueva[y]))
+        else:
+            print("R: " + str(matrizNueva[y]))
 
+    for i in range(variables):
+        for j in range(restricciones+1):
+            try:
+                matrizTrans[i][j] =  float(matrizTrans[i][j])
+            except:
+                pass
+
+    for i in range(len(listaNueva)):
+        try:
+            listaNueva[i] =  float(listaNueva[i])
+        except:
+            pass
+
+
+    controlador = Controlador(True,listaNueva,matrizTrans,restricciones)
+    controlador.inicioControlador()
+    
 #Funcion de min que recibe las variables, restricciones, listaVariables que es la que contiene la fila de Z
 # y tambien matrizX que es la que nos manda la interfaz 
 def dualMin(variables, restricciones,matrizX, listaVariables):
-    
-    signo = ">="
+
+
+    for i in range(restricciones):
+        if matrizX[i][variables+1] == "<=":
+
+            matrizX[i][variables+1] = ">="
+            for j in range(variables+1):
+                try:
+                    aux = int(matrizX[i][j])
+                    aux = -aux;
+                    matrizX[i][j] = str(aux)
+                except:
+                    pass
 
     #listaNueva contiene la nueva Min W
     for x in range(restricciones):
@@ -147,35 +161,10 @@ def dualMin(variables, restricciones,matrizX, listaVariables):
     #Con este for se tranpone la matriz con los datos de Z que estaban en listaVariables y depende de signo lo cambia ya que es la funcion de MIN
     for x in range(variables):
         matrizTrans[x][restricciones]=listaVariables[x]
-        if(signo == '>='):
-            matrizTrans[x][restricciones+1]= "<="
-        elif(signo == '<='):
-            matrizTrans[x][restricciones+1]= ">="
-        else:
-            matrizTrans[x][restricciones+1]= "="
-    #Agregando al resultado
-    ResultadoMin.append("max")
-    ResultadoMin.append(str(restricciones)+","+str(variables))
+        matrizTrans[x][restricciones+1]= "<="
 
-    var=""
-    for i in range(0,len(listaNueva)):
-        var = var + listaNueva[i]
-        if(i<len(listaNueva)-1):
-            var = var + ","
-    ResultadoMin.append(var)
-    
-    for i in range(variables):
-        var=""
-        for y in range(restricciones+2):
-            var = var + matrizTrans[i][y]
-            if(y<restricciones+1):
-                var = var + ","
-        ResultadoMin.append(var)
-    
     evaluarRestricciones(restricciones, variables)
     agregarHA(variables,restricciones)
-    z=int(menosHolgura)+int(masHolgura)
-    i = int(artificial)
 
     #imprimir matriz en forma ordenada
     for y in range(variables+1):
@@ -183,5 +172,21 @@ def dualMin(variables, restricciones,matrizX, listaVariables):
             print("Z: " + str(matrizNueva[y]))
         else:
             print("R: " + str(matrizNueva[y]))
+
+
+    for i in range(variables):
+        for j in range(restricciones+1):
+            try:
+                matrizTrans[i][j] =  float(matrizTrans[i][j])
+            except:
+                pass
+
+    for i in range(len(listaNueva)):
+        try:
+            listaNueva[i] =  float(listaNueva[i])
+        except:
+            pass
     
-    mainDual(ResultadoMin)
+
+    controlador = Controlador(False,listaNueva,matrizTrans,restricciones)
+    controlador.inicioControlador()
