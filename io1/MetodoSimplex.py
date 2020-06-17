@@ -6,6 +6,8 @@ arregloCol = []
 
 class MetodoSimplex:
 
+    sol_simplex = ''
+
     '''
     Clase en la cual se implementa el metodo simplex
     esto quiere decir que se lleva a cabo un gauss jordan
@@ -19,6 +21,9 @@ class MetodoSimplex:
         arregloCol = arregloColumnasAux  # nombre de columnas
         self.esMin = esMin  # booleano para saber si es minimizar o maximizar
         self.flagDg = False  # bandera de funcion degenerada
+
+    def textSol(self):
+        return self.sol_simplex
 
 # verificar si el ciclo ya acabo
     '''
@@ -145,7 +150,8 @@ class MetodoSimplex:
 
     def verificarDegenerada(self, degenerada):
         if self.flagDg is True:
-            print("\n\n-> Solucion Degenerada hubo empate en coef minimo en coef minimo en el estado:"+str(degenerada)+"\n")
+            self.sol_simplex += "\n\n-> Solucion Degenerada hubo empate en coef minimo en coef minimo en el estado:" + \
+                str(degenerada)+"\n"
     '''
     Funcion invocada cuando existe una variable no basica con valor de 0 en la fila U
     , en dicha funcion se encuentra la fila pivot para realizar el gauss jordan correspondiente
@@ -161,16 +167,19 @@ class MetodoSimplex:
         columnaPivot = col
         self.realizarDivision(columnaPivot)
         filaPivot = self.hallarFilaPivot()
-        print("- Numero Pivot: " + str(round(tabla[filaPivot][columnaPivot], 2)) +
-              ",VB entrante: " + arregloCol[columnaPivot] + ",VB saliente: " + arregloFilas[filaPivot])
+        self.sol_simplex += "\n- Numero Pivot: " + \
+            str(round(tabla[filaPivot][columnaPivot], 2))+",VB entrante: " + \
+            arregloCol[columnaPivot] + \
+            ",VB saliente: " + arregloFilas[filaPivot]
         self.convertir_Fila_Pivot(filaPivot, columnaPivot)
         self.modificar_Filas(filaPivot, columnaPivot)
         self.modificar_FilaZ(filaPivot, columnaPivot)
         auxFila = arregloFilas[filaPivot]
         arregloFilas[filaPivot] = arregloCol[columnaPivot]
         impresion.imprime_Matriz()
-        print("\n\n** Solucion EXTRA debido a que la variable no basica: " +
-              auxFila+" tenia un valor de 0 en el estado Final**")
+        self.sol_simplex += impresion.result_imprime()
+        self.sol_simplex += "\n\n** Solucion EXTRA debido a que la variable no basica: " + \
+            auxFila+" tenia un valor de 0 en el estado Final**"
     # ------------------------------------------------
 
     '''
@@ -195,25 +204,29 @@ class MetodoSimplex:
         cont = 0
         # imprime matriz iteracion 0
         print_Aux.imprime_Matriz(tabla, arregloFilas, arregloCol)
+        self.sol_simplex += print_Aux.print_result()
         while True:
 
             # Condicion de parada
             if self.optimoMax() is True and self.esMin is False or self.optimoMax() is True and self.esMin is True:
                 self.verificarDegenerada(degenerada)  # DEGENERADA
-                print("\n- Estado Final")
+                self.sol_simplex += print_Aux.print_result()
+                self.sol_simplex += "\n- Estado Final\n"
 
                 s.mostrarSolucion(tabla, arregloFilas, arregloCol, self.esMin)
+                self.sol_simplex += s.solucionResult()
 
                 # se verifican si existe una solucion multiple
                 if multiplesSol.localizar_VB(tabla, arregloFilas, arregloCol) != -1:
                     # existen multiples soluciones
-                    print("\n->Existen multiples soluciones\n")
+                    self.sol_simplex += "\n->Existen multiples soluciones\n"
                     self.solucionExtra(multiplesSol.localizar_VB(
                         tabla, arregloFilas, arregloCol))
 
                     # muestra solucin extra
                     s_Extra.mostrarSolucion(
                         tabla, arregloFilas, arregloCol, self.esMin)
+                    self.sol_simplex += s_Extra.solucionResult()
 
                 return tabla
 
@@ -225,10 +238,12 @@ class MetodoSimplex:
             filaPivot = self.hallarFilaPivot()
 
             if(filaPivot == -1):  # VERIFICA SOLUCION ACOTADA  # verificacion solucion acotada
-                print("\n- Estado: " + str(estados))
-                print("** Solucion NO acotada  debido a que en la columnaPivot:" +
-                      str(columnaPivot) + " cada uno de los valores es negativo o 0 **")
+                self.sol_simplex += "\n- Estado: " + str(estados)+"\n"
+                self.sol_simplex += "** Solucion NO acotada  debido a que en la columnaPivot:" + \
+                    str(columnaPivot) + \
+                    " cada uno de los valores es negativo o 0 **"
                 s.mostrarSolucion(tabla, arregloFilas, arregloCol, self.esMin)
+                self.sol_simplex += s.solucionResult()
                 return tabla  # break
 
             # verifica si se cumple con una funcin degenerada
@@ -238,10 +253,12 @@ class MetodoSimplex:
 
                 degenerada = estados+1
 
-            print("\n- Estado: " + str(estados))
+            self.sol_simplex += "\n- Estado: " + str(estados)
             estados += 1
-            print("- Numero Pivot: " + str(round(tabla[filaPivot][columnaPivot], 2)) +
-                  ",VB entrante: " + arregloCol[columnaPivot] + ",VB saliente: " + arregloFilas[filaPivot])
+            self.sol_simplex += "\n- Numero Pivot: " + \
+                str(round(tabla[filaPivot][columnaPivot], 2)) + ",VB entrante: " + \
+                arregloCol[columnaPivot] + \
+                ",VB saliente: " + arregloFilas[filaPivot]
             arregloFilas[filaPivot] = arregloCol[columnaPivot]
 
             self.convertir_Fila_Pivot(
@@ -250,6 +267,7 @@ class MetodoSimplex:
             self.modificar_FilaZ(filaPivot, columnaPivot)
 
             impresion.imprime_Matriz()
+            self.sol_simplex += impresion.result_imprime()
     '''
     FUncion utilizada para el metodo gauss jordan 
     lo que se encarga es hacer el valor de la columna
@@ -321,6 +339,8 @@ class MetodoSimplex:
 
 # Impresion de la parte grafica
 class Imprime:
+    result = ''
+
     def __init__(self):
         pass
     # Constructor
@@ -333,21 +353,21 @@ class Imprime:
 
     def imprime_Columnas(self):
         global arregloCol
-        aux = "\n\n\n\t"
+        aux = "\nputo\n\t"
         aux2 = "\t"
         for i in arregloCol:
-            aux += i+"\t\t"
+            aux += i+"\t"
             aux2 += ""
         aux2 += ""
-        print(aux+"\n"+aux2)
+        self.result += aux+"\n"+aux2+"\n"
 
     def imprimeFilaU(self):
         global arregloFilas
         aux = arregloFilas[0]+"\t"
         for x in range(len(tabla[0])):
             var2 = round(tabla[0][x].NUM, 2)
-            aux += str(var2)+"\t\t"
-        print(aux)
+            aux += str(var2)+"\t"
+        self.result += aux+"\n"
 
     '''
     Funcion encargada de imprimir la primer matriz
@@ -364,5 +384,8 @@ class Imprime:
                 aux = arregloFilas[i]+"\t"
                 for j in range(len(tabla[i])):
                     var = round(tabla[i][j], 2)
-                    aux += str(var)+"\t\t"
-                print(aux)
+                    aux += str(var)+"\t"
+                self.result += aux+"\n"
+
+    def result_imprime(self):
+        return self.result

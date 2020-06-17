@@ -1,7 +1,9 @@
 # Impresion de la parte grafica
 
 class Print:
+    result = ''
     # Constructor
+
     def __init__(self):
         pass
 
@@ -14,10 +16,10 @@ class Print:
     def imprime_Columnas(self, arregloCol):
 
         aux = "\t"
-        aux2 = "\t"
+        #aux2 = "\t"
         for i in arregloCol:
             aux += i+"\t"
-        print(aux+"\n"+aux2)
+        self.result += aux+"\n"
 
     '''
     Imprime la fila de U 
@@ -29,8 +31,7 @@ class Print:
         for x in range(len(tabla[0])):
             result = round(tabla[0][x].NUM, 2)
             aux += str(result)+"\t"
-
-        print(aux)
+        self.result += aux+"\n"
 
     '''
     Funcion encargada de imprimir la primer matriz
@@ -40,7 +41,7 @@ class Print:
     def imprime_Matriz(self, tabla, arregloFilas, arregloCol):
 
         if(len(tabla) != 0):
-            aux = ""
+            aux = "\n"
             self.imprime_Columnas(arregloCol)
             self.imprimeFilaU(tabla, arregloFilas)
             for i in range(1, len(tabla)):
@@ -48,11 +49,15 @@ class Print:
                 for j in range(len(tabla[i])):
                     result = round(tabla[i][j], 2)
                     aux += str(result)+"\t"
-                print(aux)
+                self.result += aux + "\n"
+
+    def print_result(self):
+        return self.result
 
 
 class Solucion:
     '''Impresion del resultado final'''
+    result = ''
 
     def __init__(self):
 
@@ -93,13 +98,16 @@ class Solucion:
     '''
 
     def imprimirVar(self):
-        aux = "->Respuesta Final: U = " + \
+        aux = "\n->Respuesta Final: U = " + \
             str(self.lista2[0])+"(" + str(self.lista[1]) + \
             ": " + str(round(self.lista2[1], 2))
         for i in range(2, len(self.lista)):
             aux += ","+str(self.lista[i]) + ": " + \
                 str(round(self.lista2[i], 2))
-        print(aux+" )")
+        self.result += aux+" )"
+
+    def solucionResult(self):
+        return self.result
 
 
 class Multiples_Solucion:

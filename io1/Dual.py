@@ -8,10 +8,16 @@ listaNueva = []
 masHolgura = 0  # variable para llevar un contador de cuantas variables de holgura positivas se debe agregar
 menosHolgura = 0  # variable para llevar un contador de cuantas variables de holgura negativas se debe agregar
 artificial = 0  # variable para llevar un contador de cuantas variables de artificial se debe agregar
+Result = ""  # Variable que amacenara el resultado
+
+
+def getResult():
+    return Result
 
 
 # funcion que crea la matriz transpuesta vacia a partir del numero de variables y restricciones
 def crearMatrizTrans(variables, restricciones):
+    matrizTrans.clear()
     # Creacion de una matriz vacia
     for i in range(variables):
         matrizTrans.append([])
@@ -85,14 +91,14 @@ def evaluarRestricciones(restricciones, variables):
 
 
 def dualMax(variables, restricciones, matrizX, listaVariables):
-
+    global Result
     for i in range(restricciones):
         if matrizX[i][variables+1] == ">=":
 
             matrizX[i][variables+1] = "<="
             for j in range(variables+1):
                 try:
-                    aux = int(matrizX[i][j])
+                    aux = float(matrizX[i][j])
                     aux = -aux
                     matrizX[i][j] = str(aux)
                 except:
@@ -113,16 +119,30 @@ def dualMax(variables, restricciones, matrizX, listaVariables):
         for y in range(restricciones):
             matrizTrans[w][y] = matrizX[y][w]
 
-    # Funcion oara evaluar las restricciones y sumas las variables
+    # Funcion para evaluar las restricciones y sumas las variables
     evaluarRestricciones(restricciones, variables)
     # Funcion que agrega las variables a cada fila
     agregarHA(variables, restricciones)
 
     for y in range(variables+1):
         if(y == 0):
-            print("Z: " + str(matrizNueva[y]))
+            Result += "Z: "
+            for coef in range(variables):
+                if coef != 0 and int(matrizNueva[y][coef]) >= 0:
+                    Result += " + "
+                else:
+                    Result += " "
+                Result += str(matrizNueva[y][coef])+"x"+str(coef+1)
+            Result += "\n"
         else:
-            print("R: " + str(matrizNueva[y]))
+            Result += "R"+str(y)+": "
+            for coef in range(variables):
+                if coef != 0 and int(matrizNueva[y][coef]) >= 0:
+                    Result += " + "
+                else:
+                    Result += " "
+                Result += str(matrizNueva[y][coef])+"x"+str(coef+1)
+            Result += str(matrizNueva[y][-1])+" "+str(matrizNueva[y][-2])+"\n"
 
     for i in range(variables):
         for j in range(restricciones+1):
@@ -136,22 +156,25 @@ def dualMax(variables, restricciones, matrizX, listaVariables):
             listaNueva[i] = float(listaNueva[i])
         except:
             pass
+    Result += "\n * R = Var Artificial\n * S = Var Holgura\n * X = Var Decision\n\n"
     controlador = Controlador(True, listaNueva, matrizTrans, restricciones)
     controlador.inicioControlador()
+    Result += controlador.solControlador()
+    print('termino DualMax')
 
 # Funcion de min que recibe las variables, restricciones, listaVariables que es la que contiene la fila de Z
 # y tambien matrizX que es la que nos manda la interfaz
 
 
 def dualMin(variables, restricciones, matrizX, listaVariables):
-
+    global Result
     for i in range(restricciones):
         if matrizX[i][variables+1] == "<=":
 
             matrizX[i][variables+1] = ">="
             for j in range(variables+1):
                 try:
-                    aux = int(matrizX[i][j])
+                    aux = float(matrizX[i][j])
                     aux = -aux
                     matrizX[i][j] = str(aux)
                 except:
@@ -176,11 +199,26 @@ def dualMin(variables, restricciones, matrizX, listaVariables):
     agregarHA(variables, restricciones)
 
     # imprimir matriz en forma ordenada
+    Result += "Minimo\n"
     for y in range(variables+1):
         if(y == 0):
-            print("Z: " + str(matrizNueva[y]))
+            Result += "\tZ: "
+            for coef in range(variables):
+                if coef != 0 and int(matrizNueva[y][coef]) >= 0:
+                    Result += " + "
+                else:
+                    Result += " "
+                Result += str(matrizNueva[y][coef])+"x"+str(coef+1)
+            Result += "\nSujeto a:\n"
         else:
-            print("R: " + str(matrizNueva[y]))
+            Result += "\tR"+str(y)+": "
+            for coef in range(variables):
+                if coef != 0 and int(matrizNueva[y][coef]) >= 0:
+                    Result += " + "
+                else:
+                    Result += " "
+                Result += str(matrizNueva[y][coef])+"x"+str(coef+1)
+            Result += str(matrizNueva[y][-1])+" "+str(matrizNueva[y][-2])+"\n"
 
     for i in range(variables):
         for j in range(restricciones+1):
@@ -194,6 +232,8 @@ def dualMin(variables, restricciones, matrizX, listaVariables):
             listaNueva[i] = float(listaNueva[i])
         except:
             pass
-
+    Result += "\n * R = Var Artificial\n * S = Var Holgura\n * X = Var Decision\n\n"
     controlador = Controlador(False, listaNueva, matrizTrans, restricciones)
     controlador.inicioControlador()
+    Result += controlador.solControlador()
+    print('termino DualMin')

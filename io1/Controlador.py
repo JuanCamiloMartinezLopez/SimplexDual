@@ -280,6 +280,8 @@ class Restricciones:
 
 
 class Controlador:
+
+    result = ''
     '''
     Metodo main en donde se llaman a las funciones para
     la implementacion del metodo simplex
@@ -301,9 +303,10 @@ class Controlador:
     pertenecientes a la fila U, ademas se crea la tabla de forma estandarizada
     '''
 
-    def inicioControlador(self):
-        print("\n * R = Var Artificial    \n * S = Var Holgura       \n * X = Var Decision      \n\n")
+    def solControlador(self):
+        return self.result
 
+    def inicioControlador(self):
         matriz = Matriz(self.arregloEntrada)  # crea objeto para la impresion
         matriz.cantidad_filas()  # crea la tabla
         matriz.variablesX()
@@ -315,22 +318,17 @@ class Controlador:
         z.agregarRestricciones()
 
         global arregloFilas, arregloCol, tabla
-        print("=====================================================================")
-        print("Simplex")
-        print("tabla")
-
-        print(tabla)
-        print(arregloFilas, " arregloFilas")
-        print(arregloCol, " arregloCol")
-        print(self.esMinimizar, " esMinimizar")
-        print("=====================================================================")
 
         MS = MetodoSimplex(tabla, arregloFilas, arregloCol, self.esMinimizar)
         matrizDual = MS.start_MetodoSimplex_Max()
+        self.result = MS.textSol()
+        #print("=======================Result controlador=============================")
+        # print(self.result)
+        # print("=====================================================================")
         arregloDual = self.imprimirResultadoDual(matrizDual)
-        print("\nSoluciones del problema original\n")
+        self.result += "\nSoluciones del problema original\n"
         for i in range(len(arregloDual)):
-            print("X"+str(i+1)+" = "+str(arregloDual[i]))
+            self.result += "X"+str(i+1)+" = "+str(arregloDual[i])+"\n"
 
     def imprimirResultadoDual(self, matrizDual):
         arregloDual = []
