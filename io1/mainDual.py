@@ -24,7 +24,7 @@ def modificar(variables,restricciones,decision):
 
 
 
-    if(decision.get() == "Máximo"):
+    if(decision.get() == "Maximo"):
             dualMax(variables,restricciones,matrizX, listaVariables)
     else:
             dualMin(variables,restricciones,matrizX, listaVariables)
