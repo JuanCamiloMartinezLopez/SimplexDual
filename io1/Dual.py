@@ -3,7 +3,7 @@ import numpy as np
 
 matrizTrans = []  # matriz a usar como transpuesta
 matrizNueva = []  # matriz que se va usar para agregar las de holgura y artificial
-listaZFase1 = []  # lista donde se guarda el resultado de Z con las variables agregadas
+listaZ = []  # lista donde se guarda el resultado de Z con las variables agregadas
 listaNueva = []
 masHolgura = 0  # variable para llevar un contador de cuantas variables de holgura positivas se debe agregar
 menosHolgura = 0  # variable para llevar un contador de cuantas variables de holgura negativas se debe agregar
@@ -17,77 +17,66 @@ def getResult():
 
 # funcion que crea la matriz transpuesta vacia a partir del numero de variables y restricciones
 def crearMatrizTrans(variables, restricciones):
-    matrizTrans.clear()
-    # Creacion de una matriz vacia
+    #Creacion de una matriz vacia
     for i in range(variables):
         matrizTrans.append([])
         for j in range(restricciones+2):
-            matrizTrans[i].append(None)
+            matrizTrans[i].append(None)   
 
-# Agarra la funcion objetivo y cada una de las restricciones y le agrega las de holgura y artificial que llevan cada una
-
-
-def agregarHA(variables, restricciones):
+#Agarra la funcion objetivo y cada una de las restricciones y le agrega las de holgura que llevan cada una 
+def agregarHA(variables,restricciones):
     global menosHolgura
     global masHolgura
     global artificial
-    # agrega la fila de Z mas las variables de holgura y artificiales
+    #agrega la fila de Z mas las variables de holgura y artificiales 
     for i in range(restricciones):
-        listaZFase1.append(listaNueva[i])
+        listaZ.append(listaNueva[i])
     for j in range(masHolgura):
-        listaZFase1.append(0)  # agrega 0 porque las de holgura llevan 0
+        listaZ.append(0)#agrega 0 porque las de holgura llevan 0 
     for i in range(menosHolgura):
-        listaZFase1.append(0)  # agrega 0 porque las de holgura llevan 0
-    for y in range(artificial):
-        # agrega -1 porque las artificiales en Z llevan -1 al pasar del otro lado
-        listaZFase1.append(-1)
-    listaZFase1.append(0)
-    # Anade esa lista a la matriz que se va imprimir
-    matrizNueva.append(listaZFase1)
+        listaZ.append(0)#agrega 0 porque las de holgura llevan 0 
 
-    # agrega cada restriccion en una lista con las variables de holgut=ra y artificial en 0 y las mete a la matriz
+    listaZ.append(0)
+    matrizNueva.append(listaZ)#Anade esa lista a la matriz que se va imprimir 
+
+    #agrega cada restriccion en una lista con las variables de holgut=ra y artificial en 0 y las mete a la matriz
     for i in range(variables):
         listaRestriccion = []
         for j in range(restricciones):
-            listaRestriccion.append(int(matrizTrans[i][j]))
+            listaRestriccion.append(float(matrizTrans[i][j]))
         for x in range(menosHolgura):
             listaRestriccion.append(0)
         for x in range(masHolgura):
             listaRestriccion.append(0)
-        for x in range(artificial):
-            listaRestriccion.append(0)
-        listaRestriccion.append(int(matrizTrans[i][restricciones]))
+
+        listaRestriccion.append(float(matrizTrans[i][restricciones]))
         listaRestriccion.append(matrizTrans[i][restricciones+1])
         matrizNueva.append(listaRestriccion)
 
-    # agregar los 1 de holgura y artificial
+    #agregar los 1 de holgura y artificial
     for i in range(menosHolgura):
-        matrizNueva[i+1][restricciones+i] = -1
+        matrizNueva[i+1][restricciones+i]=-1
     for i in range(masHolgura):
-        matrizNueva[i+1][restricciones+menosHolgura+i] = 1
-    for i in range(artificial):
-        matrizNueva[i+1][restricciones+menosHolgura+masHolgura+i] = 1
+        matrizNueva[i+1][restricciones+menosHolgura+i]=1
 
-# Lleva los contadores de la cantidad de variables que se deben agregar y sino hay imprime que no hay signos
+    for i in matrizNueva:
+        print(i," matrizNueva")
 
-
+#Lleva los contadores de la cantidad de variables que se deben agregar y sino hay imprime que no hay signos 
 def evaluarRestricciones(restricciones, variables):
     global menosHolgura
     global masHolgura
     global artificial
     for i in range(variables):
         if(matrizTrans[i][restricciones+1] == ">="):
-            artificial = artificial + 1
-            menosHolgura = menosHolgura + 1
+            artificial = artificial +1
+            menosHolgura = menosHolgura +1
         elif(matrizTrans[i][restricciones+1] == "<="):
-            masHolgura = masHolgura + 1
+            masHolgura = masHolgura +1
         elif(matrizTrans[i][restricciones+1] == "="):
-            artificial = artificial + 1
+            artificial = artificial +1
         else:
             pass
-
-# Funcion de max que recibe las variables, restricciones, listaVariables que es la que contiene la fila de Z
-# y tambien matrizX que es la que nos manda la interfaz
 
 
 def dualMax(variables, restricciones, matrizX, listaVariables):

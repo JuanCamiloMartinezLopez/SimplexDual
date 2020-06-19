@@ -1,5 +1,3 @@
-
-import copy
 from MetodoSimplex import*
 tabla = [[]]
 variablesDecision = 0
@@ -29,7 +27,7 @@ class Z:
     Clase la cual recibe como parametro si se trata de minimizar o 
     maximizar, ademas de una lista de lista en la cual se encuentran
     las restricciones en formato de [[3,2,1,"<="]] en donde los numeros
-    corresponden a float o int y el simbolo es un string
+    corresponden a float y el simbolo es un string
 
     '''
 
@@ -162,15 +160,6 @@ class Matriz:
     def get_Matriz(self):  # get de la matriz
         return self.matriz
 
-    '''
-    Funcion en la cual se crea la matriz a utilizar
-    contando las variables artificiales, holgura y basicas
-    en caso de tenerlas
-    Ademas se agregan dos columnas extra para colocar
-    la solucion y el resultado de la division para
-    la seleccion del fila pivot
-    '''
-
     def cantidad_filas(self):
         if(len(self.matriz) != 0):
             global variablesDecision, tabla
@@ -220,21 +209,9 @@ class Restricciones:
                 tabla[i+1][posicion] = -1
             else:
                 tabla[i+1][posicion] = 1
-        '''
-        como se menciono anteriormente
-        se agregan dos columnas extras
-        que corresponden a la solucin y a una
-        para la division
-        '''
         arregloCol.append("SOL")
         arregloCol.append("DIV")
 
-    '''
-    Funcion en la cual se agrega al arreglo que muestra las filas
-    y las columnas una R representando variable artificial
-    y una S en caso de ser una variable de holgura
-    Se le adiciona el nuemero para poder diferenciarlas
-    '''
 
     def MayorIgual(self):
         arregloCol.append("R"+str(self.varR))
@@ -250,23 +227,12 @@ class Restricciones:
         switcher = {True: 1}
         return switcher.get(argument, -1)
 
-    '''
-    Funcion la cual agrega una S asemejando a una variable
-    holgura tanto al arreglo de filas como el arreglo 
-    de columnas , es cuando se recibe un signo <=
-    '''
 
     def MenorIgual(self):
         arregloCol.append("S"+str(self.varS))
         arregloFilas.append("S"+str(self.varS))
         self.varS += 1
 
-    '''
-    Funcion en la que se agrega una R asimilando 
-    una variable artificial, se agrega cuando 
-    en la restriccion el signo es un =, se anade 
-    al arreglo de filas y columnas
-    '''
 
     def Igual(self):
         arregloCol.append("R"+str(self.varR))
@@ -320,11 +286,8 @@ class Controlador:
         global arregloFilas, arregloCol, tabla
 
         MS = MetodoSimplex(tabla, arregloFilas, arregloCol, self.esMinimizar)
-        matrizDual = MS.start_MetodoSimplex_Max()
+        matrizDual = MS.start_MetodoSimplex()
         self.result = MS.textSol()
-        #print("=======================Result controlador=============================")
-        # print(self.result)
-        # print("=====================================================================")
         arregloDual = self.imprimirResultadoDual(matrizDual)
         self.result += "\nSoluciones del problema original\n"
         for i in range(len(arregloDual)):
