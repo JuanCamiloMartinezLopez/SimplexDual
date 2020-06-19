@@ -36,6 +36,7 @@ class Z:
         self.restricciones = arreglo
         self.u = u
 
+
     '''
     Funcion en la cual se crean los objetos
     correspondientes a las variables basicas
@@ -45,6 +46,7 @@ class Z:
     '''
 
     def crearZ(self):
+
         global tabla
         self.convertirNulo_ObjetosU()
         for i in range(len(self.u)):
@@ -56,34 +58,7 @@ class Z:
             arregloZ.append(z)
         sol = Z_Aux(0, "SOL")
         arregloZ.append(sol)
-
-    ''' 
-    Funcion en la cual se verifica si la variable
-    se encuentra en el arreglo  para ello se utiliza 
-    la letra que lo ubica en la columna
-    '''
-
-    def buscarArreglo(self, identificador):
-        global arregloZ
-        for x in range(len(arregloZ)):
-            if arregloZ[x].letra == identificador:
-                return x
-        return -1
-
-    '''
-    Funcion que verifica si se trata de minimizar o 
-    maximizar , en caso de que sea minimizar cambiara de
-    signo al numero debido al despeje que se debe hacer
-    al colocar Z
-
-    '''
-
-    def verificarMinX(self, numero):
-        if self.esMin is True:
-            # print(numero*-1)
-            return numero*-1
-        else:
-            return numero
+        
 
     '''
     Funcion la cual va agregando va recorriendo restriccion por restriccion
@@ -116,9 +91,7 @@ class Z:
 
     def cambiarSignos(self):
         global arregloZ, tabla
-        # if self.esMin is not True:
         arregloZ[len(arregloZ)-1].NUM = arregloZ[len(arregloZ)-1].NUM*-1
-        #print("Prueba "+str(arregloZ[len(arregloZ)-1].NUM))
 
         for x in range(len(arregloZ)):
             tabla[0][self.ubicar_En_Tabla(arregloZ[x])] = arregloZ[x]
@@ -152,13 +125,6 @@ class Matriz:
 
     def __init__(self, arreglo):
         self.matriz = arreglo
-
-    def set_Matriz(self, valor):  # set matriz
-        print("Matriz cambiada")
-        self.matriz = valor
-
-    def get_Matriz(self):  # get de la matriz
-        return self.matriz
 
     def cantidad_filas(self):
         if(len(self.matriz) != 0):
@@ -255,14 +221,10 @@ class Controlador:
 
     def __init__(self, minimo, U, restricciones, vars):
         global variablesDecision
-
         variablesDecision = vars
         self.esMinimizar = minimo  # se recibe
-        #print("Es minimizar "+str(self.esMinimizar))
         self.arregloZ = U
-        #print("arregloZ "+str(self.arregloZ))
         self.arregloEntrada = restricciones
-        #print("arregloEntrada "+str(self.arregloEntrada))
 
     '''
     Funcion en la cual se controla la creacion del areglo con objetos
@@ -301,37 +263,3 @@ class Controlador:
                 if "S" in matrizDual[0][i].letra:
                     arregloDual.append((round(matrizDual[0][i].NUM*-1, 2)))
         return arregloDual
-
-    def hacerCeros(self, nuevaTabla, arregloFilas, nuevoArregloCol):
-
-        for i in range(len(nuevoArregloCol)):
-            for j in range(len(arregloFilas)):
-
-                if arregloFilas[j] == nuevoArregloCol[i]:
-                    nuevaTabla = self.modificar_FilaZ(j, i, nuevaTabla)
-
-        return nuevaTabla
-
-    def modificar_FilaZ(self, filaPivot, columnaPivot, nuevaTabla):
-
-        lista = []
-        lista2 = []
-        for i in range(len(nuevaTabla[0])-2):
-            arg2 = nuevaTabla[0][columnaPivot].NUM
-            y = nuevaTabla[0][i].NUM-arg2*nuevaTabla[filaPivot][i]
-            lista2.append(y)
-
-        arg2 = nuevaTabla[0][columnaPivot].NUM
-
-        if self.esMinimizar is True:
-            y = nuevaTabla[0][len(nuevaTabla[0])-2].NUM - \
-                arg2*nuevaTabla[filaPivot][len(nuevaTabla[0])-2]
-        else:
-            y = nuevaTabla[0][len(nuevaTabla[0])-2].NUM + \
-                arg2*nuevaTabla[filaPivot][len(nuevaTabla[0])-2]
-        lista2.append(y)
-        x = 0
-        while x < len(lista2):
-            nuevaTabla[0][x].NUM = lista2[x]
-            x += 1
-        return nuevaTabla
