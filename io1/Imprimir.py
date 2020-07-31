@@ -108,3 +108,33 @@ class Solucion:
 
     def solucionResult(self):
         return self.result
+
+
+class Multiples_Solucion:
+    '''
+    Clase en la cual se verifica si el resultado final cuenta con 
+    una solucion extra o no 
+    '''
+
+    def __init__(self):
+        self.listaPosiciones = []
+
+    def localizar_VB(self, tabla, arregloFilas, arregloCol):
+        for i in range(1, len(arregloFilas)):
+            self.listaPosiciones.append(arregloCol.index(arregloFilas[i]))
+
+        return self.verificar_Multiples_Soluciones(tabla)
+
+    '''
+    Funcion en la cual se verifica si en la fila U
+    existe alguna variable no basica con valor de 0 
+    ya que debido a esto se considera que tiene soluciones
+    extra
+    '''
+
+    def verificar_Multiples_Soluciones(self, tabla):
+        for i in range(len(tabla[0])-2):
+            if not i in self.listaPosiciones:
+                if tabla[0][i].NUM == 0:
+                    return i
+        return -1
