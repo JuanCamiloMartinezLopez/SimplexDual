@@ -1,7 +1,7 @@
 # SimplexDual
 Programa de simplex dual para investigación de operaciones 1
 
-MANUAL DE USUARIO
+#MANUAL DE USUARIO
 GRUPO 10
 SIMPLEX DUAL
 
